@@ -16,7 +16,7 @@ const INITIAL_LOGS = [
 ];
 
 const App: React.FC = () => {
-    const [topic, setTopic] = useState('你现在扮演一名世界知名的展馆设计大师，现在制作一个宁波北仑的科技博物馆中的序厅，序厅的中心位置是一个讲述港口里包含的基础科学内容的大型机械装置，这个装置要兼具科学性和美观性，一张广角建筑摄影，展示一个未来主义的现代中庭大堂。给我一段TXT格式的提示词文字，我要使用nanobanana生成图片，你给我几个方案，分别列出提示词，中英文对照');
+    const [topic, setTopic] = useState('生成一张高质量的游戏场景化的效果图，呈现出一种极致简约且具有未来科幻感的的未来氛围，在空间氛围上，空间色调上，空间调性上，内容是：XXXX博物馆式聚光灯照明，戏剧性照明，深邃的环境光，高质量的PBR材质，材质有轻微的反射，减少无意义的光线，不得出现中文字和标注文字，空间充满了设计感。');
     const [mode, setMode] = useState<SystemMode>(SystemMode.SINGULARITY);
     const [engineState, setEngineState] = useState<EngineState>({
         status: 'IDLE',

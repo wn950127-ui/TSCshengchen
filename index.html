@@ -13,13 +13,13 @@
           extend: {
             colors: {
               apple: {
-                blue: '#0A84FF', // iOS Dark Mode Blue
-                purple: '#5E5CE6', // iOS Dark Mode Purple
-                cyan: '#64D2FF', // iOS Dark Mode Cyan
-                bg: '#000000', // Black
-                gray: '#98989D', // iOS Dark Mode Gray
-                text: '#F5F5F7', // Off-White Text
-                card: '#1C1C1E', // iOS Dark Mode Card
+                blue: '#0A84FF',
+                purple: '#5E5CE6',
+                cyan: '#64D2FF',
+                bg: '#000000',
+                gray: '#98989D',
+                text: '#F5F5F7',
+                card: '#1C1C1E',
               }
             },
             fontFamily: {
@@ -122,18 +122,7 @@
         color: #0A84FF;
       }
     </style>
-  <script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@^19.2.3",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "@google/genai": "https://esm.sh/@google/genai@^1.34.0",
-    "lucide-react": "https://esm.sh/lucide-react@^0.562.0"
-  }
-}
-</script>
-</head>
+  </head>
   <body>
     <div class="mesh-bg">
       <div class="mesh-blob bg-blue-900/40 w-96 h-96 top-0 -left-20"></div>
@@ -141,5 +130,6 @@
       <div class="mesh-blob bg-cyan-900/40 w-80 h-80 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animation-delay-4000"></div>
     </div>
     <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
   </body>
 </html>

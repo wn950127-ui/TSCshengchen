@@ -9,8 +9,7 @@ You must adopt the persona of the Cognitive Limit System v3.0 fully.
 
 **ROLE & OBJECTIVE:**
 You are a world-renowned "Master Spatial Concept Artist" and "AI Prompt Engineer". 
-Your goal is to generate **3 distinct design schemes (Option 1, 2, 3)** based on the user's input.
-You must use the **INTERNAL KNOWLEDGE BASE** to select specific vocabulary for every aspect of the image.
+Your goal is to generate **5 distinct design schemes (Option 1 to 5)** based on the user's input.
 
 **[PROMPT ARCHITECTURE: THE SANDWICH PROTOCOL]**
 You **MUST** construct the English Prompt using this strict 3-layer structure, but you **MUST MERGE THEM** into a single continuous block of text.
@@ -22,7 +21,6 @@ You **MUST** construct the English Prompt using this strict 3-layer structure, b
 **LAYER 2: THE FILLING (Subject & Content)**
 *   The core visual description.
 *   **Sequence:** [Main Subject] + [Spatial Environment] + [Form/Structure Logic] + [Key Materials] + [Specific Details].
-*   *Requirement:* Use specific terms from the Knowledge Base below (e.g., "mobius topology", "dichroic glass", "mega-span space frame").
 
 **LAYER 3: THE BOTTOM (Atmosphere & Tech)**
 *   The finishing touches and technical parameters.
@@ -80,50 +78,50 @@ The **Prompt (English)** section must be a **SINGLE, CONTINUOUS PARAGRAPH**.
 
 **OUTPUT FORMAT RULES:**
 1. **Output must be in Simplified Chinese (for descriptions) and English (for prompts).**
-2. Provide **3 Distinct Options** (e.g., Option 1: Faithful/Professional, Option 2: Creative/Artistic, Option 3: Experimental/Abstract).
-3. For each option, strictly follow this format:
+2. Provide **5 Distinct Options** (e.g., Option 1: Faithful/Professional, Option 2: Creative/Artistic, Option 3: Experimental/Abstract, Option 4: Futuristic/Sci-Fi, Option 5: Minimalist/Zen).
+3. For each option, strictly follow this format, presenting the prompt as a block of text:
    
-   ### 方案 [1/2/3]: [Scheme Name / 风格名称]
-   **设计逻辑 (Logic)**: [Brief explanation of the spatial logic, atmosphere, and design choices using the Knowledge Base]
-   **Prompt (English)**: [SINGLE CONTINUOUS BLOCK OF ENGLISH TEXT. No line breaks. End with --ar 16:9]
-   **提示词 (中文)**: [Direct translation of the English prompt for reference]
+   ### 方案 [1/2/3/4/5]: [Scheme Name / 风格名称]
+   **设计逻辑 (Logic)**: [Brief explanation of the spatial logic, atmosphere, and design choices]
+   
+   **【纯文本提示词 / TXT Prompt】**:
+   [SINGLE CONTINUOUS BLOCK OF ENGLISH TEXT. No line breaks. End with --ar 16:9]
+   
+   **【中文对照 / Translation】**:
+   [Direct translation of the English prompt for reference as a single continuous text block]
    
    ---
 
 4. Ensure the prompts are optimized for High-quality Stable Diffusion/Midjourney.
 `;
 
-const getClient = () => {
-    const apiKey = process.env.API_KEY;
-    if (!apiKey) {
-        throw new Error("API_KEY is not defined");
-    }
-    return new GoogleGenAI({ apiKey });
-};
-
 export const extractTextFromImage = async (
     base64Data: string, 
     mimeType: string
 ): Promise<string> => {
     try {
-        const client = getClient();
-        const response = await client.models.generateContent({
-            model: 'gemini-3-flash-preview',
-            contents: {
-                parts: [
-                    {
-                        inlineData: {
-                            mimeType: mimeType,
-                            data: base64Data
-                        }
-                    },
-                    {
-                        text: "OCR Task: Extract all legible text from this image. Return only the extracted text, no commentary."
+        const response = await fetch('/api/gemini/vision', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                model: 'gemini-3.1-flash-preview',
+                prompt: "OCR Task: Extract all legible text from this image. Return only the extracted text, no commentary.",
+                imagePart: {
+                    inlineData: {
+                        mimeType: mimeType,
+                        data: base64Data
                     }
-                ]
-            }
+                }
+            })
         });
-        return response.text || "";
+        
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        return data.text || "";
     } catch (error) {
         console.error("OCR Error:", error);
         throw new Error("Failed to extract text from image");
@@ -136,8 +134,6 @@ export const generateUltimatePrompt = async (
     referenceImage?: { data: string, mimeType: string } | null
 ): Promise<string> => {
     try {
-        const client = getClient();
-        
         const systemInstruction = `
 ${SYSTEM_DEFINITION}
 
@@ -160,26 +156,32 @@ CURRENT MODE: ${mode}
 
         parts.push({ text: `Task: Generate ultimate prompts for: "${topic}"` });
 
-        // Use gemini-3-pro-preview for complex reasoning and prompt engineering
-        const response = await client.models.generateContent({
-            model: 'gemini-3-pro-preview',
-            contents: { parts },
-            config: {
-                systemInstruction: systemInstruction,
-                thinkingConfig: { thinkingBudget: 2048 }, // Enable thinking for better reasoning
-            }
+        // Wait, the backend currently takes prompt as array for generateContent.
+        // Let's make sure the backend handles the parts array correctly.
+        const response = await fetch('/api/gemini/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                model: 'gemini-3.1-pro-preview',
+                prompt: parts,
+                systemInstruction: systemInstruction
+            })
         });
 
-        const text = response.text;
-        if (!text) {
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (!data.text) {
             throw new Error("Empty response from Cognitive Engine");
         }
-        return text;
+        return data.text;
 
     } catch (error: any) {
         console.error("Cognitive Engine Error:", error);
         const msg = error.message || "Unknown error";
-        if (msg.includes("API_KEY")) throw error;
         throw new Error(`Cognitive Engine Failure: ${msg}`);
     }
 };

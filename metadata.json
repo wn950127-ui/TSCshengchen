@@ -1,5 +1,6 @@
 {
   "name": "提示词生成 v3.0",
   "description": "An advanced AI prompt engineering interface that simulates a multi-dimensional cognitive engine to generate transcendent system prompts.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [],
+  "majorCapabilities": []
 }
